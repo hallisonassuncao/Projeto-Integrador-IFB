@@ -84,25 +84,117 @@ por isso a divergência é sempre sinalizada e auditada, nunca silenciosa.
 (padrão brasileiro). Quando dia e mês são ambos ≤ 12 e diferentes, a leitura `mm/dd` mudaria a data;
 esses casos recebem `data_ambigua = true` (no CSV fornecido: 6 registros).
 
-## 4. Modelo de dados
+## 4. Modelagem de Dados (MER, DDL e estrutura relacional)
 
-`clientes_tratados` (1 linha por cliente): campos tratados + `bairro_informado` (original),
-`bairro`, `subdivisao`, `bairro_fonte`, `divergencia_cep_bairro`, `revisao_manual`,
-`cnpj_dv_valido`, `email_valido`, `telefone_tipo`, `cep_status`, `data_ambigua`.
+O modelo descrito abaixo representa a **base final tratada e persistida em banco SQL**, resultado do processo de ETL. Ele não reflete o arquivo bruto de entrada em CSV, pois a tabela final inclui campos gerados durante a normalização e enriquecimento, como validações, indicadores de qualidade, bairro canônico e status de processamento.
 
-`auditoria_tratamento`: `id_cliente`, `campo`, `valor_original`, `valor_tratado`, `criterio`, `fonte`
-(`regra`, `informado`, `api_cep`, `api_cep+informado`), `revisao_manual`, `executado_em`.
-Registra toda alteração de valor e todo critério diferente de "ok", inclusive a resposta da API
-(`api=viacep: 'Taguatinga Sul'`) no campo `criterio` do bairro.
+O armazenamento utiliza uma estrutura relacional normalizada para garantir a persistência dos dados tratados do pipeline e a rastreabilidade das operações de ETL.
 
-Exemplos (execução offline):
+### 4.1. Modelo Conceitual (MER)
+O modelo conceitual descreve as principais entidades identificadas no domínio do problema:
 
-| id | campo | original | tratado | critério |
-|---|---|---|---|---|
-| CLI0001 | bairro | `Sul (Águas Claras)` | `Águas Claras / Sul` | `informado_sem_confirmacao_de_cep` |
-| CLI0003 | data_cadastro | `28/02/2022` | `2022-02-28` | `formato=dd/mm/aaaa` |
-| CLI0005 | cep | `00000-000` | *(nulo)* | `cep_invalido` |
-| CLI0001 | cnpj | `84.959.310/3413-16` | idem | `dv_invalido_mantido_e_sinalizado` |
+- **Vendedor:** representa os responsáveis comerciais do atendimento dos clientes.
+- **Cliente (`clientes_tratados`):** entidade central que armazena o cadastro tratado e normalizado.
+- **Auditoria (`auditoria_tratamento`):** entidade de suporte destinada a registrar o histórico detalhado de cada alteração aplicada aos campos do cliente.
+
+Relacionamentos principais:
+- Um **Vendedor** atende múltiplos **Clientes** (relação 1:N).
+- Cada **Cliente** pode gerar múltiplas entradas na **Auditoria** (relação 1:N).
+- Cada registro de auditoria está associado a um único cliente.
+
+Para este desafio, o bairro foi tratado como atributo do cliente, em vez de uma entidade separada, porque a análise de domínio foi feita no contexto do cadastro e do tratamento do CEP. Isso mantém a simplicidade do modelo relacional sem perder a rastreabilidade.
+
+![Modelo conceitual](./imagens/modeloconeitual.png)
+
+### 4.2. Modelo Lógico e estrutura das tabelas
+O modelo lógico define as tabelas, colunas, tipos de dados e restrições de integridade.
+
+1. **`vendedores`**
+   - `id_vendedor` (INTEGER, PK) — identificador único do vendedor.
+   - `nome_vendedor` (VARCHAR) — nome completo do vendedor.
+
+2. **`clientes_tratados`**
+   - `id_cliente` (VARCHAR, PK) — identificador único do cliente.
+   - `razao_social` (VARCHAR) — nome comercial do cliente.
+   - `cnpj` (VARCHAR) / `cnpj_dv_valido` (BOOLEAN) — CNPJ tratado e validação do dígito verificador.
+   - `telefone` (VARCHAR) / `telefone_tipo` (VARCHAR) — contato e tipo de linha.
+   - `email` (VARCHAR) / `email_valido` (BOOLEAN) — endereço eletrônico tratado e validado.
+   - `cep` (VARCHAR) / `cep_status` (VARCHAR) — CEP normalizado e estado de validação.
+   - `bairro_informado` / `bairro` / `subdivisao` / `bairro_fonte` — dados geográficos originais e normalizados.
+   - `divergencia_cep_bairro` (BOOLEAN) / `revisao_manual` (BOOLEAN) — flags de qualidade.
+   - `cidade` (VARCHAR) / `uf` (VARCHAR) — dados de localização.
+   - `data_cadastro` (DATE) / `data_ambigua` (BOOLEAN) — data tratada e sinalização de ambiguidade.
+   - `vendedor_id` (INTEGER, FK) — referência ao vendedor responsável.
+
+3. **`auditoria_tratamento`**
+   - `id` (INTEGER, PK) — chave primária da auditoria.
+   - `id_cliente` (VARCHAR, FK) — cliente afetado pela operação.
+   - `campo` (VARCHAR) — atributo submetido ao tratamento.
+   - `valor_original` (TEXT) — valor bruto original do CSV.
+   - `valor_tratado` (TEXT) — valor final após normalização.
+   - `criterio` (TEXT) — regra ou motivo da correção.
+   - `fonte` (VARCHAR) — origem da decisão (`regra`, `informado`, `api_cep`).
+   - `revisao_manual` (BOOLEAN) — indicador de necessidade de revisão humana.
+   - `executado_em` (TIMESTAMPTZ) — timestamp da execução.
+
+![Modelo lógico](./imagens/modelo_logico.png)
+
+### 4.3. Estrutura física (DDL para PostgreSQL)
+Código SQL para criação da base relacional:
+
+```sql
+CREATE TABLE vendedores (
+    id_vendedor SERIAL PRIMARY KEY,
+    nome_vendedor VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE clientes_tratados (
+    id_cliente VARCHAR(20) PRIMARY KEY,
+    razao_social VARCHAR(200),
+    cnpj VARCHAR(18),
+    cnpj_dv_valido BOOLEAN,
+    telefone VARCHAR(15),
+    telefone_tipo VARCHAR(10),
+    email VARCHAR(150),
+    email_valido BOOLEAN,
+    cep VARCHAR(9),
+    cep_status VARCHAR(30),
+    bairro_informado VARCHAR(100),
+    bairro VARCHAR(100),
+    subdivisao VARCHAR(30),
+    bairro_fonte VARCHAR(30),
+    divergencia_cep_bairro BOOLEAN,
+    revisao_manual BOOLEAN,
+    cidade VARCHAR(80),
+    uf VARCHAR(2),
+    data_cadastro DATE,
+    data_ambigua BOOLEAN,
+    vendedor_id INTEGER,
+    CONSTRAINT fk_cliente_vendedor
+        FOREIGN KEY (vendedor_id) REFERENCES vendedores(id_vendedor)
+);
+
+CREATE TABLE auditoria_tratamento (
+    id SERIAL PRIMARY KEY,
+    id_cliente VARCHAR(20) NOT NULL,
+    campo VARCHAR(30),
+    valor_original TEXT,
+    valor_tratado TEXT,
+    criterio TEXT,
+    fonte VARCHAR(30),
+    revisao_manual BOOLEAN,
+    executado_em TIMESTAMPTZ DEFAULT NOW(),
+    CONSTRAINT fk_auditoria_cliente
+        FOREIGN KEY (id_cliente) REFERENCES clientes_tratados(id_cliente)
+);
+```
+
+### 4.4. Justificativa da modelagem
+- A tabela `clientes_tratados` armazena a versão final da base, pronta para consulta e análise.
+- A tabela `auditoria_tratamento` preserva o histórico das transformações, permitindo rastrear cada decisão de limpeza.
+- A separação entre dados finais e dados de auditoria evita perda de informação e aumenta a confiabilidade do processo.
+- A tabela `vendedores` reduz redundância e mantém a integridade referencial.
+- O uso de chaves estrangeiras garante que não existam registros órfãos e que a relação entre entidades seja consistente.
 
 ## 5. Limites conhecidos
 
