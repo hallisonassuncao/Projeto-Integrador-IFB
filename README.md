@@ -74,6 +74,8 @@ Devem passar 76 testes.
 
 7. Conferir o resultado no SQLite
 
+8. & "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -d vetor
+
 python -c "import sqlite3; c=sqlite3.connect('vetor.db'); print(c.execute('SELECT bairro, COUNT(*) FROM clientes_tratados GROUP BY bairro').fetchall())"
 
 Lembretes
