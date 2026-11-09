@@ -76,6 +76,19 @@ Devem passar 76 testes.
 
 8. & "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -d vetor
 
+9. Próximo teste: verificar as subdivisões
+Ainda no PostgreSQL (vetor=#), execute:
+
+SELECT
+    bairro,
+    subdivisao,
+    COUNT(*) AS quantidade
+FROM clientes_tratados
+GROUP BY bairro, subdivisao
+ORDER BY bairro, subdivisao;
+
+
+
 python -c "import sqlite3; c=sqlite3.connect('vetor.db'); print(c.execute('SELECT bairro, COUNT(*) FROM clientes_tratados GROUP BY bairro').fetchall())"
 
 Lembretes
