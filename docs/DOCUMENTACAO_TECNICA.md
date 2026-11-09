@@ -18,16 +18,25 @@ CSV (;) ──► extrair ──► transformar ──► carregar ──► Pos
 | `etl/resolucao.py` | Critério explícito para combinar bairro informado × bairro da API |
 | `etl/pipeline.py` | Extração, transformação, carga e resumo; define as tabelas |
 | `etl/dicionario_bairros.csv` | Dicionário variante → bairro canônico (+ subdivisão), ampliável sem mexer em código |
-| `main.py` | CLI |
+| `main.py` | CLI do pipeline de ETL |
+| `manage.py` | Utilitário administrativo do Django (`rodar_etl`, `runserver`, `test`) |
+| `clientes/` | App Django: modelos ORM (`Vendedor`, `ClienteTratado`, `AuditoriaTratamento`), Django Admin e API REST (DRF) |
 
 ## 2. Como executar
 
 ```bash
 pip install -r requirements.txt
-export DATABASE_URL=postgresql+psycopg2://postgres:postgres@localhost:5432/vetor
+
+# Opção 1: Execução com Django (Recomendada — Painel Admin + API REST)
+python manage.py migrate
+python manage.py rodar_etl          # executa o ETL e popula o banco
+python manage.py runserver          # inicia o servidor (Admin em /admin, API em /api/)
+python manage.py test               # testes de integração do Django
+
+# Opção 2: Execução via CLI clássica
 python main.py                      # com consulta de CEP (internet)
 python main.py --sem-api --db-url sqlite:///vetor.db   # offline, sem PostgreSQL
-pytest                              # 74 testes, sem rede e sem PostgreSQL
+pytest                              # 74 testes unitários de normalização e CEP
 ```
 
 Saídas: tabelas no banco + `saida/clientes_tratados.csv` + `saida/auditoria_tratamento.csv`

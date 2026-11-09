@@ -1,0 +1,27 @@
+# Python e Compilação
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Ambientes Virtuais
+.venv/
+venv/
+ENV/
+env/
+meuAmbiente/
+
+# Testes e Cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Banco de dados de desenvolvimento local do Django
+db.sqlite3
+db.sqlite3-journal
+
+# Arquivos estáticos coletados
+staticfiles/
+
+# Variáveis de ambiente locais
+.env

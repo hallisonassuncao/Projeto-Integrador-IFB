@@ -91,4 +91,44 @@ ORDER BY bairro, subdivisao;
 
 python -c "import sqlite3; c=sqlite3.connect('vetor.db'); print(c.execute('SELECT bairro, COUNT(*) FROM clientes_tratados GROUP BY bairro').fetchall())"
 
-Lembretes
+## 10. Executando com o Framework Django
+
+O projeto agora conta com integração completa ao **Django** e **Django REST Framework (DRF)**, fornecendo painel administrativo visual e API REST.
+
+### 10.1 Aplicar as Migrações
+```bash
+python manage.py migrate
+```
+
+### 10.2 Executar o Pipeline de ETL pelo Django
+```bash
+python manage.py rodar_etl
+# ou modo offline:
+python manage.py rodar_etl --sem-api
+```
+
+### 10.3 Iniciar o Servidor Web
+```bash
+python manage.py runserver
+```
+
+Acesse no navegador:
+* **Painel Administrativo do Django:** [http://localhost:8000/admin/](http://localhost:8000/admin/)
+  * **Usuário:** `admin`
+  * **Senha:** `admin123`
+  * *Permite visualizar, filtrar por bairro/revisão, buscar clientes e ver todo o histórico de auditoria inline com badges visuais.*
+* **Navegador da API REST (DRF):** [http://localhost:8000/api/](http://localhost:8000/api/)
+  * `GET /api/clientes/` — Listagem de clientes com filtros por `bairro`, `uf`, `divergencia`, `revisao_manual` e `vendedor`.
+  * `GET /api/clientes/{id}/` — Detalhes do cliente com lista de alterações de auditoria aninhadas.
+  * `GET /api/auditoria/` — Trilha de auditoria das transformações.
+  * `GET /api/vendedores/` — Vendedores e contagem de clientes atendidos.
+  * `GET /api/relatorios/bairros/` — Agregação de clientes por bairro e subdivisão.
+  * `GET /api/relatorios/resumo/` — Resumo estatístico de governança de dados.
+  * `POST /api/etl/executar/` — Disparo do pipeline sob demanda via API.
+
+### 10.4 Rodar os Testes
+```bash
+python manage.py test       # Testes dos modelos, comando e API REST do Django
+pytest                      # 74 testes unitários de normalização e resiliência de CEP
+```
+
