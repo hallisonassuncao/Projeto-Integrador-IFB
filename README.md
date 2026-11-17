@@ -323,7 +323,7 @@ Esta seção apresenta as evidências de funcionamento do projeto **Distribuidor
 
 ✅ O pipeline realiza as etapas de **extração, transformação e carga (ETL)**, processando os dados dos clientes e persistindo as informações tratadas no PostgreSQL.
 
-**Comando executado no terminal:**
+**Comando executado no terminal VSCode:**
 
 ```
 python executar_etl.py
