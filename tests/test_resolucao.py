@@ -14,7 +14,11 @@ def test_sem_api_usa_informado(dicionario):
 
 def test_sem_api_e_sem_informado(dicionario):
     r = resolver_bairro(inf(dicionario, ""), None)
-    assert r.bairro is None and r.fonte == "nenhuma" and not r.revisao_manual
+
+    assert r.bairro is None
+    assert r.fonte == "nenhuma"
+    assert r.criterio == "sem_bairro_resolvido"
+    assert r.revisao_manual is True
 
 
 def test_informado_nao_mapeado_sem_api_pede_revisao(dicionario):
