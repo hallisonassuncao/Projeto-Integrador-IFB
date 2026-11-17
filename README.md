@@ -313,6 +313,33 @@ docs/              MER + DER, documentação técnica do ETL, relatório de trad
   (inclui `drf-spectacular-sidecar`), reinicie o servidor e use `Ctrl+F5` no navegador. A alternativa é `/api/swagger/`.
 - **`No module named ...`:** o ambiente virtual não está ativo ou os pacotes não foram instalados.
 - **`manage.py` não encontrado:** execute os comandos dentro da pasta do projeto.
+
+## 📸 Demonstração do sistema
+
+### Painel principal
+
+O painel apresenta os 47 clientes distribuídos em quatro bairros normalizados, além de um cliente sem bairro.
+
+![Painel principal da Distribuidora Vetor](docs/imagens/painel.png)
+
+### Listagem de clientes
+
+A interface apresenta os clientes com razão social, bairro, vendedor, CNPJ e telefone padronizados.
+
+![Tela de clientes](docs/imagens/clientes.png)
+
+### Vendedores
+
+A tela apresenta os cinco vendedores e a quantidade de clientes vinculados a cada um.
+
+![Tela de vendedores](docs/imagens/vendedores.png)
+
+### Filtro por vendedor
+
+Ao selecionar Camila Torres, o sistema apresenta os 14 clientes vinculados à vendedora.
+
+![Filtro de clientes por vendedor](docs/imagens/filtro-vendedor.png)
+
   
 
 ## 👥 Autoria
