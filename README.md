@@ -475,7 +475,7 @@ Todos os **121 testes foram aprovados** na execução realizada.
 
 ## 📸 Demonstração do Sistema
 
-### ==> Painel Principal
+### ==> 1. Painel Principal
 
 ✅ O painel apresenta os 47 clientes distribuídos em quatro bairros normalizados, além de um cliente sem bairro.
 
@@ -491,21 +491,41 @@ Evidência da execução:
 
 <img width="1353" height="697" alt="Painel principal" src="https://github.com/user-attachments/assets/736e574f-fe47-4b74-bef1-9ec6c37f78a7" />
 
-### ==> Listagem de Clientes
+### ==> 2. Listagem de Clientes
 
 ✅ A interface apresenta os clientes com razão social, bairro, vendedor, CNPJ e telefone padronizados.
 
+Como acessar: com o servidor Django em execução, abra a interface web e selecione a opção Clientes.
+
+Endpoint utilizado pela interface:
+
+http://127.0.0.1:8000/api/clientes/
+
 <img width="1376" height="728" alt="Listagem de clientes" src="https://github.com/user-attachments/assets/bb1d90c1-8f4d-46c0-8f3d-6cb8ec1592f4" />
 
-### ==> Vendedores
+### ==> 3. Vendedores
 
 ✅ A tela apresenta os cinco vendedores e a quantidade de clientes vinculados a cada um.
 
+Como acessar: na interface web, selecione a opção Vendedores.
+
+Endpoint utilizado pela interface:
+
+http://127.0.0.1:8000/api/vendedores/
+
 <img width="1364" height="723" alt="vendedores" src="https://github.com/user-attachments/assets/5b43eb8b-e848-4d1f-81d7-f869aadc3a4c" />
 
-### ==> Filtro por Vendedor
+### ==> 4. Filtro por Vendedor
 
 ✅ Ao selecionar Camila Torres, o sistema apresenta os 14 clientes vinculados à vendedora.
+
+Como executar: abra a seção Clientes e utilize o filtro por vendedor, selecionando Camila Torres.
+
+Endpoint correspondente ao filtro:
+
+GET http://127.0.0.1:8000/api/clientes/vendedor/{id}/
+
+Substitua {id} pelo identificador da vendedora cadastrado no banco de dados.
 
 <img width="1348" height="730" alt="Ao selecionar Camila Torres" src="https://github.com/user-attachments/assets/3fa0be68-da03-48ba-b41b-f67608d63b32" />
 
