@@ -418,8 +418,9 @@ ORDER BY total_clientes DESC;
 **Consulta para verificar a quantidade de registros:**
 
 ```sql
-SELECT COUNT(*) AS total_auditorias
-FROM clientes_auditoria;
+
+with connection.cursor() as cursor: cursor.execute("SELECT COUNT(*) AS total_auditorias FROM clientes_auditoria;"); print("Total de auditorias:", cursor.fetchone()[0])
+
 ```
 
 **Consulta para visualizar os registros de auditoria:**
