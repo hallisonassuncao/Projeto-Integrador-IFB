@@ -314,6 +314,7 @@ docs/              MER + DER, documentação técnica do ETL, relatório de trad
 - **`manage.py` não encontrado:** execute os comandos dentro da pasta do projeto.
 
 
+
 ## 🖥️ Evidências de execução no VS Code
 
 Esta seção apresenta as evidências de funcionamento do projeto **Distribuidora Vetor**, incluindo a execução do pipeline ETL, a validação dos dados no PostgreSQL, a auditoria das transformações e os testes automatizados.
