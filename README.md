@@ -355,13 +355,9 @@ python executar_etl.py
 
 **Consulta SQL:**
 
-```sql
-SELECT
-    COALESCE(bairro_normalizado, 'Sem bairro') AS bairro,
-    COUNT(*) AS total_clientes
-FROM clientes_cliente
-GROUP BY bairro_normalizado
-ORDER BY total_clientes DESC;
+```
+from django.db import connection; cursor = connection.cursor(); cursor.execute("SELECT COALESCE(bairro_normalizado, 'Sem bairro') AS bairro, COUNT(*) AS total_clientes FROM clientes_cliente GROUP BY bairro_normalizado ORDER BY total_clientes DESC;"); print(*cursor.fetchall(), sep="\n"); cursor.close()
+
 ```
 
 **Resultado obtido:**
