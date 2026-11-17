@@ -320,7 +320,7 @@ docs/              MER + DER, documentação técnica do ETL, relatório de trad
 
 O painel apresenta os 47 clientes distribuídos em quatro bairros normalizados, além de um cliente sem bairro.
 
-![Painel principal da Distribuidora Vetor](docs/imagens/painel.png)
+<img width="1353" height="697" alt="Painel principal" src="https://github.com/user-attachments/assets/736e574f-fe47-4b74-bef1-9ec6c37f78a7" />
 
 ### Listagem de clientes
 
