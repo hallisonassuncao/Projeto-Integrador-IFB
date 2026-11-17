@@ -479,6 +479,16 @@ Todos os **121 testes foram aprovados** na execução realizada.
 
 ✅ O painel apresenta os 47 clientes distribuídos em quatro bairros normalizados, além de um cliente sem bairro.
 
+Comando para iniciar o sistema:
+
+python manage.py runserver
+
+Endereço de acesso:
+
+http://127.0.0.1:8000/
+
+Evidência da execução:
+
 <img width="1353" height="697" alt="Painel principal" src="https://github.com/user-attachments/assets/736e574f-fe47-4b74-bef1-9ec6c37f78a7" />
 
 ### ==> Listagem de Clientes
