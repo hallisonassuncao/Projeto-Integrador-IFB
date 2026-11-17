@@ -187,7 +187,7 @@ Para ver o conteúdo:
 python -c "import sqlite3; c=sqlite3.connect('vetor.db'); print(c.execute('SELECT bairro_normalizado, COUNT(*) FROM clientes_cliente GROUP BY 1').fetchall())"
 ```
 
-## Consultar o banco no VS Code
+## Consultar o Banco no VS Code
 
 Ao abrir a pasta, o VS Code sugere instalar as extensões recomendadas (`.vscode/extensions.json`). O arquivo
 [consultas.sql](consultas.sql) traz 9 consultas prontas (bairros agrupados, auditoria, divergências, vendedores).
@@ -324,7 +324,7 @@ e carga, persistindo os dados tratados no PostgreSQL.
 
 <img width="1349" height="758" alt="1 execucao-etl" src="https://github.com/user-attachments/assets/65248e62-afab-4cdf-8d28-2cace37374b7" />
 
-### ==> Resumo do processamento
+### ==> Resumo do Processamento
 
 ✅ O ETL processou 47 clientes, normalizou quatro bairros,
 gerou 194 registros de auditoria e identificou um
@@ -332,28 +332,28 @@ registro para revisão manual.
 
 <img width="1351" height="756" alt="2 resumo do ETL" src="https://github.com/user-attachments/assets/744ea4d4-59d9-4efa-a537-6910c86e31d6" />
 
-### ==> Normalização dos bairros
+### ==> Normalização dos Bairros
 
 ✅ Consulta SQL que comprova a distribuição dos clientes
 pelos bairros normalizados.
 
 <img width="1395" height="754" alt="3 consulta-bairros" src="https://github.com/user-attachments/assets/2e84d777-34cf-4ac9-a5e4-0e020d64674a" />
 
-### ==> Relacionamento entre clientes e vendedores
+### ==> Relacionamento entre Clientes e Vendedores
 
 ✅ Consulta SQL que apresenta os cinco vendedores e suas
 respectivas quantidades de clientes.
 
 <img width="1359" height="756" alt="4 consulta-vendedores" src="https://github.com/user-attachments/assets/250811cc-597f-427d-bd0c-b200d3a4fb22" />
 
-### ==> Auditoria das transformações
+### ==> Auditoria das Transformações
 
 ✅ O banco registra os valores originais, os valores
 tratados e os critérios aplicados pelo ETL.
 
 <img width="1409" height="758" alt="5 Consultas de auditorias" src="https://github.com/user-attachments/assets/dd9ec8c5-b2ae-40a7-930d-b53e88975343" />
 
-### ==> Tratamento de divergências
+### ==> Tratamento de Divergências
 
 ✅ O cliente CLI0002 apresentou divergência entre o bairro
 informado e o retornado pelo ViaCEP. O sistema priorizou
@@ -361,7 +361,7 @@ o retorno da API e registrou a decisão na auditoria.
 
 <img width="1344" height="756" alt="6 consulta-divergencias" src="https://github.com/user-attachments/assets/ea9d20f8-bafb-4ffb-b558-e88fd6fcfd16" />
 
-### ==> Testes automatizados
+### ==> Testes Automatizados
 
 ✅ Foram executados 121 testes automatizados com Pytest,
 todos aprovados.
