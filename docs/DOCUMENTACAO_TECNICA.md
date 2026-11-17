@@ -129,19 +129,35 @@ Exemplos (execução offline):
    exige revisão.
 8. A carga grava cliente a cliente (`update_or_create`): adequada ao tamanho do desafio; para grandes volumes seria preciso upsert em lote.
 9. **CEPs bem formatados, mas inexistentes.** Os CEPs 72110-800 (CLI0017 e CLI0033) e 71900-000 (CLI0029) têm formato válido, porém ViaCEP e BrasilAPI responderam que não existem (3 clientes). O pipeline não trata isso como erro: sem confirmação da API, vale o bairro informado normalizado (`informado_sem_confirmacao_de_cep`) e o CEP original é mantido, sem correção. A auditoria registra o caso no campo `cep` com o critério `cep_nao_encontrado_na_api` (falhas de rede aparecem como `cep_consulta_falhou`, sem confundir com CEP inexistente), e o resumo do ETL traz o total em `ceps_nao_encontrados`.
+10. 
 
 ## 6. O que foi verificado
 
-- 121 testes automatizados: normalização, cliente de CEP com respostas simuladas (sucesso, fallback,
-  timeout, cache positivo/negativo, JSON inválido), regras de resolução, tamanhos de coluna, comando
-  `rodar_etl` (inclusive idempotência) e a API (CRUD, controle de acesso, rotas de relacionamento,
-  token, schema OpenAPI sem avisos e admin).
-- Execução real com ViaCEP e PostgreSQL 18, usando a carga atual (Django ORM): 14 CEPs distintos
-  consultados (31 clientes com CEP válido), 16 requisições às APIs, 0 falhas; 2 CEPs não encontrados nas
-  APIs (3 clientes). Resultado: 47 clientes, 5 vendedores, 4 bairros, 194 linhas de auditoria, 1
-  divergência CEP × bairro (CLI0002) e 0 clientes em revisão manual. Uma execução anterior, com a
-  versão antiga da carga (SQLAlchemy), revelou dois nomes de bairro devolvidos pela API fora do
-  dicionário ("Setor Habitacional Vicente Pires", "Areal"), incorporados ao dicionário.
-- O provedor reserva (BrasilAPI) foi acionado em condições reais nos 2 CEPs que o ViaCEP não
-  encontrou, e também respondeu que não existem. O caso em que o ViaCEP falha e a BrasilAPI devolve o
-  bairro está coberto apenas por teste simulado.
+- **Testes automatizados:** 121 testes aprovados (`121 passed in 35.58s`), abrangendo normalização, cliente de CEP com respostas simuladas (sucesso, fallback, timeout, cache positivo/negativo, JSON inválido), regras de resolução, tamanhos de coluna, comando `rodar_etl` (inclusive idempotência) e API REST (CRUD, controle de acesso, rotas de relacionamento, token, schema OpenAPI e admin).
+
+- **Verificação do Django:** execução do comando `python manage.py check`, com resultado `System check identified no issues (0 silenced)`.
+
+- **Execução real com ViaCEP e PostgreSQL 18:** utilizando a carga via Django ORM, foram consultados 14 CEPs distintos (31 clientes com CEP válido), totalizando 16 requisições às APIs e nenhuma falha. Dois CEPs distintos não foram encontrados nas APIs, afetando 3 clientes. Uma execução anterior, utilizando SQLAlchemy, identificou dois nomes de bairros fora do dicionário ("Setor Habitacional Vicente Pires" e "Areal"), posteriormente incorporados ao dicionário de normalização.
+
+- **Nova execução do ETL após correção da revisão manual:** o comando `python manage.py rodar_etl --saida saida` foi executado com sucesso, apresentando os seguintes resultados:
+  - 47 clientes processados;
+  - 5 vendedores cadastrados;
+  - 26 grafias distintas de bairros antes da normalização;
+  - 4 bairros distintos após a normalização;
+  - 1 cliente sem bairro resolvido;
+  - 1 cliente sinalizado para revisão manual;
+  - 1 divergência entre CEP e bairro;
+  - 194 registros de auditoria;
+  - 6 datas ambíguas;
+  - 47 CNPJs com dígitos verificadores inválidos;
+  - 10 e-mails inválidos;
+  - 0 telefones inválidos;
+  - 3 clientes com CEP não encontrado nas APIs.
+
+- **Correção da revisão manual:** a função `resolver_bairro`, localizada em `etl/resolucao.py`, foi ajustada para marcar `revisao_manual = True` quando não for possível determinar um bairro a partir dos dados informados ou da API. Após a correção, os 121 testes automatizados continuaram passando. Na nova execução, o ETL identificou corretamente 1 cliente nessa condição, em vez de nenhum.
+
+- **Cache de CEP:** na nova execução, os 31 clientes com CEP válido foram atendidos pelo cache local, sem novas requisições externas e sem falhas de consulta.
+
+- **Provedor reserva (BrasilAPI):** na execução real anterior, foi acionado para os 2 CEPs não encontrados pelo ViaCEP, também retornando ausência de resultado. O cenário em que o ViaCEP falha e a BrasilAPI retorna um bairro válido está coberto por teste automatizado com respostas simuladas.
+
+Os resultados demonstram o funcionamento do pipeline ETL, da persistência dos dados, da auditoria e das regras de normalização nos cenários testados. A revisão manual permite identificar registros sem informações suficientes para uma classificação confiável, evitando a atribuição automática de bairros sem confirmação.
