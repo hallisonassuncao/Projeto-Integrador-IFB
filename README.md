@@ -318,25 +318,25 @@ docs/              MER + DER, documentação técnica do ETL, relatório de trad
 
 ### ==> Painel Principal
 
-🔴 O painel apresenta os 47 clientes distribuídos em quatro bairros normalizados, além de um cliente sem bairro.
+✅ O painel apresenta os 47 clientes distribuídos em quatro bairros normalizados, além de um cliente sem bairro.
 
 <img width="1353" height="697" alt="Painel principal" src="https://github.com/user-attachments/assets/736e574f-fe47-4b74-bef1-9ec6c37f78a7" />
 
 ### ==> Listagem de Clientes
 
-🔴 A interface apresenta os clientes com razão social, bairro, vendedor, CNPJ e telefone padronizados.
+✅ A interface apresenta os clientes com razão social, bairro, vendedor, CNPJ e telefone padronizados.
 
 <img width="1376" height="728" alt="Listagem de clientes" src="https://github.com/user-attachments/assets/bb1d90c1-8f4d-46c0-8f3d-6cb8ec1592f4" />
 
 ### ==> Vendedores
 
-🔴 A tela apresenta os cinco vendedores e a quantidade de clientes vinculados a cada um.
+✅ A tela apresenta os cinco vendedores e a quantidade de clientes vinculados a cada um.
 
 <img width="1364" height="723" alt="vendedores" src="https://github.com/user-attachments/assets/5b43eb8b-e848-4d1f-81d7-f869aadc3a4c" />
 
 ### ==> Filtro por Vendedor
 
-🔴 Ao selecionar Camila Torres, o sistema apresenta os 14 clientes vinculados à vendedora.
+✅ Ao selecionar Camila Torres, o sistema apresenta os 14 clientes vinculados à vendedora.
 
 <img width="1348" height="730" alt="Ao selecionar Camila Torres" src="https://github.com/user-attachments/assets/3fa0be68-da03-48ba-b41b-f67608d63b32" />
 
