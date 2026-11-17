@@ -21,20 +21,19 @@ Projeto do desafio Primora (Bolsa Futuro Digital), em duas partes:
 | Documentação técnica explicando as regras adotadas e seus limites conhecidos | Regras por campo, critério de divergência, limites e o que foi verificado | [docs/DOCUMENTACAO_TECNICA.md](docs/DOCUMENTACAO_TECNICA.md) |
 | Relatório curto (1-2 páginas) com os trade-offs: o que foi automatizado, o que foi tratado manualmente, e por quê | Cerca de 800 palavras, com os números da execução real | [docs/RELATORIO_TRADEOFFS.md](docs/RELATORIO_TRADEOFFS.md) |
 
-### Abordagens sugeridas e o que a equipe adotou
+### Abordagens sugeridas e soluções adotadas
 
-O enunciado trata as abordagens como pontos de partida, não como roteiro obrigatório.
+As abordagens apresentadas no enunciado foram utilizadas como referência para o desenvolvimento do projeto, considerando os requisitos técnicos e as necessidades de tratamento dos dados.
 
-| Abordagem possível | Decisão da equipe | Onde está |
+| **Abordagem possível** | **Solução adotada** | **Implementação** |
 |---|---|---|
-| Normalização textual determinística (caixa, acentuação, espaços, conteúdo entre parênteses) | Adotada: chave em minúsculas, sem acento, sem parênteses, sem sufixo "DF" e sem pontuação | `etl/normalizers.py` (`chave_texto`) |
-| Dicionário de correspondência (variante → nome canônico), construído e ampliado ao longo do processo | Adotada: dicionário em CSV, ampliado após a execução real com "Areal" e "Setor Habitacional Vicente Pires" | `etl/dicionario_bairros.csv` |
-| Enriquecimento via API pública gratuita de CEP (ViaCEP, BrasilAPI), com cache local | Adotada: ViaCEP, com BrasilAPI de reserva; cache em SQLite, inclusive para "CEP não existe" (falhas de rede não são cacheadas) | `etl/cep_client.py` |
-| Critério explícito para divergências entre o bairro informado e o retornado pelo CEP | Adotada: a API prevalece e a divergência é sinalizada e auditada; sem confirmação da API, vale o bairro informado normalizado | `etl/resolucao.py`, documentação técnica (seção 3.3) |
-| Tratamento de campos adicionais sujos (telefone, CNPJ, datas) | Adotada: CNPJ formatado e validado, telefone em E.164, datas em 4 formatos (lidas como dd/mm) e e-mail validado. Valores inválidos são sinalizados, não descartados | `etl/normalizers.py` |
+| Normalização textual determinística (caixa, acentuação, espaços e conteúdo entre parênteses) | Padronização dos textos em minúsculas, sem acentos, parênteses, sufixo "DF" e pontuação, permitindo identificar diferentes grafias de um mesmo bairro. | `etl/normalizers.py` (`chave_texto`) |
+| Dicionário de correspondência (variante → nome canônico) | Utilização de um dicionário CSV para relacionar diferentes grafias aos nomes padronizados dos bairros, incluindo "Areal" e "Setor Habitacional Vicente Pires". | `etl/dicionario_bairros.csv` |
+| Enriquecimento por APIs públicas de CEP (ViaCEP e BrasilAPI) | Integração com o ViaCEP como fonte principal e BrasilAPI como alternativa, utilizando cache local em SQLite para reduzir requisições. CEPs inexistentes são armazenados em cache, enquanto falhas de conexão não são armazenadas. | `etl/cep_client.py` |
+| Tratamento de divergências entre o bairro informado e o retornado pela consulta de CEP | Priorização das informações retornadas pela API, com registro das divergências na auditoria. Quando não há confirmação pela API, utiliza-se o bairro informado após a normalização. | `etl/resolucao.py` e documentação técnica (seção 3.3) |
+| Tratamento de dados inconsistentes (telefone, CNPJ, datas e e-mail) | Padronização dos telefones no formato E.164, formatação e validação de CNPJ, tratamento de datas em quatro formatos e validação de e-mails. Valores inválidos são sinalizados para análise, sem descarte automático dos registros. | `etl/normalizers.py` |
 
-As regras de negócio assumidas pela equipe (por exemplo, datas ambíguas lidas como dd/mm e a subdivisão
-guardada em coluna própria) estão documentadas na documentação técnica, junto com os limites conhecidos.
+As regras de negócio utilizadas no projeto, incluindo a interpretação de datas ambíguas no formato `dd/mm` e o armazenamento das subdivisões dos bairros em campos específicos, estão detalhadas na documentação técnica, juntamente com os critérios de decisão, as limitações identificadas e os procedimentos de tratamento dos dados.
 
 ## Escopo do desafio — Parte 2 (API)
 
