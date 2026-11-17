@@ -471,11 +471,7 @@ Todos os **121 testes foram aprovados** na execução realizada.
 
 <img width="1355" height="753" alt="Resultado dos testes automatizados com Pytest" src="https://github.com/user-attachments/assets/6151dbb1-1977-4094-b5a4-1536267af200" />
 
-<<<<<<< HEAD
-
 ```
-=======
->>>>>>> 78919e5 (Correção e formatacao e comandos do README)
 
 Esse procedimento permite executar consultas SQL diretamente pelo Django, sem a necessidade de utilizar o programa `psql` no terminal do Windows.
 
