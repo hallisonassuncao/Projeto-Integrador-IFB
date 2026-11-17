@@ -72,3 +72,4 @@ Os 121 testes automatizados passaram em 35,58 segundos. O comando `python manage
 ## Próximos passos
 
 Revisar manualmente o CLI0047, conferir a divergência do CLI0002, corrigir os CEPs inexistentes (72110-800 e 71900-000), definir uma política de validação de CNPJ para produção e avaliar carga incremental para bases maiores.
+>>>>>>> 9829d3740b5584dcee3b9d1da7a665a4c6bc58ce
