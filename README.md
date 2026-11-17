@@ -318,7 +318,7 @@ docs/              MER + DER, documentação técnica do ETL, relatório de trad
 
 ### Painel principal
 
-O painel apresenta os 47 clientes distribuídos em quatro bairros normalizados, além de um cliente sem bairro.
+🔴O painel apresenta os 47 clientes distribuídos em quatro bairros normalizados, além de um cliente sem bairro.
 
 <img width="1353" height="697" alt="Painel principal" src="https://github.com/user-attachments/assets/736e574f-fe47-4b74-bef1-9ec6c37f78a7" />
 
