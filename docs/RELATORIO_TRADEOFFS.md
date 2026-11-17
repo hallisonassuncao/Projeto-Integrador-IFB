@@ -1,70 +1,74 @@
 # Relatório de trade-offs — ETL Distribuidora Vetor
 
 ## Problema
-47 clientes com 25 grafias diferentes de bairro (mais 1 registro sem bairro), 4 formatos de telefone,
-4 formatos de data, CNPJ com e sem máscara e 34% dos CEPs ausentes ou zerados. Sem tratamento, um
-relatório por bairro mostra 25 linhas onde existem 4 bairros.
+
+A base contém 47 clientes, com 25 grafias diferentes de bairro e 1 registro sem bairro, totalizando 26 valores distintos antes do tratamento. Também apresenta formatos inconsistentes de telefone, data e CNPJ, além de CEPs ausentes, inválidos ou divergentes. Sem normalização, os relatórios regionais ficam fragmentados, dificultando a análise dos quatro bairros representados na amostra.
 
 ## O que foi automatizado — e por quê
-| Decisão | Motivo |
+
+| Decisão | Justificativa |
 |---|---|
-| Normalização textual determinística (caixa, acento, `DF`, parênteses) | Resolve a maior parte das variantes sem custo nem risco; é reprodutível e testável |
-| Dicionário variante → bairro canônico em arquivo CSV | Regra explícita e auditável; quem conhece o negócio amplia sem editar código |
-| Padronização de CNPJ, telefone (E.164) e datas | Transformações sem ambiguidade; cada uma gera linha de auditoria |
-| Consulta de CEP (ViaCEP → BrasilAPI) com cache | Única fonte externa de verdade geográfica; o cache evita repetir chamadas e torna reexecuções rápidas e estáveis |
-| Divergência CEP × bairro: a API prevalece, com flag | Fonte estruturada vence texto livre, mas a decisão fica visível e reversível |
+| Normalização textual (caixa, acentos, espaços, `DF` e parênteses) | Padroniza grafias de maneira determinística, reproduzível e testável. |
+| Dicionário de bairros em CSV | Permite mapear variantes para nomes canônicos, mantendo regras explícitas e auditáveis. |
+| Padronização de CNPJ, telefone, datas e e-mails | Uniformiza os dados e sinaliza valores inválidos sem descartar registros. |
+| Consulta ViaCEP com fallback BrasilAPI e cache SQLite | Enriquece os dados, reduz requisições repetidas e permite reexecuções mais rápidas. |
+| Resolução de divergências CEP × bairro | A API prevalece quando ambos são mapeados e divergem; a decisão é registrada na auditoria. |
+| Auditoria e carga idempotente | Preserva o histórico das decisões de tratamento e evita duplicação de clientes nas reexecuções. |
 
 ## O que ficou para tratamento manual — e por quê
-| Item | Motivo |
+
+| Situação | Justificativa |
 |---|---|
-| Bairros fora do dicionário e correspondências *fuzzy* | Aproximar texto automaticamente pode juntar bairros diferentes; um erro silencioso contamina o relatório |
-| Bairro da API que não existe no dicionário | Pode ser variante nova legítima ou erro da API; só quem conhece a região decide |
-| CEPs de outra UF | Indício de erro de cadastro, não de grafia |
-| Datas ambíguas (`dd/mm` × `mm/dd`) | Sem segunda fonte não há como confirmar; fica a premissa `dd/mm` + flag `data_ambigua` |
-| CNPJ com dígito verificador inválido | Descartar apagaria a base inteira; ficou como sinalização, e a decisão cabe ao negócio |
+| Bairro ausente ou não resolvido | Não é possível atribuir uma localidade confiável sem informação suficiente. |
+| Bairros desconhecidos e correspondências *fuzzy* | A similaridade textual pode associar localidades diferentes. |
+| Bairro da API fora do dicionário | Pode representar uma nova variante legítima ou inconsistência da fonte externa. |
+| CEP pertencente a outra UF | Indica possível erro cadastral que exige confirmação. |
+| Datas ambíguas | Adota-se `dd/mm`, com sinalização, pois não há segunda fonte para confirmar a interpretação. |
+| CNPJ com dígitos verificadores inválidos | A base é sintética; rejeitar esses valores eliminaria os 47 registros. |
 
 ## Trade-offs principais
-1. **Precisão × cobertura.** Preferimos deixar um bairro nulo com revisão a "chutar". O custo é
-   trabalho manual residual; o ganho é que nenhum número do relatório depende de adivinhação.
-2. **Dependência externa × autonomia.** A API melhora a qualidade, mas pode falhar ou devolver nomes
-   fora do padrão. Mitigação: fallback entre dois provedores, cache, falhas nunca cacheadas, e o
-   pipeline funciona sem API (`--sem-api`) usando só o dicionário.
-3. **Bairro-pai × subdivisão.** Agrupar em "Águas Claras" perde o recorte Sul/Norte; guardá-lo em
-   coluna própria permite as duas visões, ao custo de uma coluna a mais.
-4. **Rigor × utilidade (CNPJ).** Validar e rejeitar seria o correto em produção, mas aqui geraria
-   tabela vazia. Optamos por marcar e documentar o limite.
-5. **Carga linha a linha × em lote.** A carga é idempotente (`update_or_create` por `id_cliente`) e
-   preserva clientes criados pela API, mas grava registro a registro: adequado ao volume do desafio,
-   não a milhões de linhas.
-6. **Banco normalizado × tabela larga.** Vendedor ganhou tabela própria, porque a API o exige como
-   entidade com CRUD. Bairro e CEP continuam colunas do cliente: simplifica os relatórios agrupados
-   por bairro, ao custo de repetir o texto em cada linha.
 
-## Resultado (execução real: ViaCEP + PostgreSQL)
-| Indicador | Valor |
+1. **Precisão × cobertura.** A prioridade é evitar a atribuição de bairros sem evidência suficiente. Registros não resolvidos permanecem nulos e são sinalizados para revisão manual.
+
+2. **Dependência externa × autonomia.** ViaCEP e BrasilAPI oferecem referência geográfica, mas podem falhar ou devolver nomes não padronizados. O cache local, o fallback e a execução offline (`--sem-api`) reduzem essa dependência.
+
+3. **Bairro-pai × subdivisão.** Os relatórios agrupam clientes pelo bairro canônico, enquanto subdivisões como Sul, Norte e Areal são preservadas separadamente.
+
+4. **Rigor × utilidade dos dados.** Os 47 CNPJs possuem dígitos verificadores inválidos. Optou-se por preservar os registros e sinalizar a inconsistência, em vez de descartar toda a base fictícia.
+
+5. **Carga individual × desempenho.** O uso de `update_or_create` torna a carga idempotente e preserva clientes criados pela API. Para grandes volumes, seria necessário avaliar operações em lote.
+
+6. **Normalização do banco × simplicidade.** Vendedores possuem tabela própria, enquanto bairro e CEP permanecem associados ao cliente, facilitando consultas e relatórios.
+
+## Resultados verificados
+
+| Indicador | Resultado |
 |---|---|
-| Grafias de bairro → bairros canônicos | 25 (+1 vazio) → **4** (Águas Claras, Taguatinga, Vicente Pires, Guará) |
-| CEPs distintos consultados (31 clientes com CEP válido) | 14 (16 requisições, 0 falhas); 2 não encontrados nas APIs |
-| Bairro informado e CEP concordam | 27 |
-| Divergência CEP × bairro (API prevalece) | 1 (CLI0002) |
-| Só o bairro informado, sem confirmação pela API | 18 (15 sem CEP utilizável; 3 com CEP bem formatado, mas inexistente nas APIs) |
-| Sem bairro resolvido | 1 (CLI0047, sem bairro nem CEP) |
-| Fila de revisão manual após ampliar o dicionário | **0** |
-| Linhas de auditoria | 194 (191 + 3 de CEP não encontrado na API) |
+| Clientes processados | 47 |
+| Vendedores | 5 |
+| Grafias de bairros antes do tratamento | 25 + 1 registro vazio |
+| Bairros canônicos | 4 |
+| Clientes com CEP válido | 31 |
+| CEPs distintos consultados na execução real anterior | 14 |
+| Requisições externas nessa execução | 16, sem falhas |
+| CEPs não encontrados | 2 distintos, afetando 3 clientes |
+| Bairro informado e API concordam | 27 |
+| Bairro obtido somente pela API | 1 |
+| Bairro obtido somente do cadastro | 18 |
+| Divergência CEP × bairro | 1 (CLI0002) |
+| Cliente sem bairro resolvido | 1 (CLI0047) |
+| Clientes em revisão manual após correção | **1 (CLI0047)** |
+| Registros de auditoria | 194 |
+| Testes automatizados | **121 aprovados** |
 
-- Na **primeira rodada**, 8 clientes foram para revisão manual porque a API devolveu nomes fora do
-  dicionário: "Setor Habitacional Vicente Pires" (5) e "Areal" (3). Em todos o bairro informado já
-  apontava para o mesmo local. Os dois nomes entraram no dicionário (`Vicente Pires`;
-  `Águas Claras / Areal`) e a segunda rodada zerou a fila. É o ciclo esperado do processo:
-  automatizar o que o dicionário cobre, revisar o resto, ampliar o dicionário.
-- "Areal → Águas Claras" é **premissa assumida** a partir da base (os 3 clientes com esse retorno
-  informaram Águas Claras), sem fonte oficial no pipeline.
-- CLI0002: informado "Sul (Águas Claras)", ViaCEP devolveu "Taguatinga Norte". A API prevaleceu e o
-  caso está registrado na auditoria para conferência; é o único ponto em que o pipeline contrariou o
-  cadastro.
-- 6 datas ambíguas (lidas como dd/mm); 10 e-mails fora do padrão ASCII sinalizados; 47 CNPJs com
-  dígito verificador inválido (base sintética), mantidos e sinalizados.
+Na primeira execução com consultas externas, oito clientes foram sinalizados porque a API retornou nomes ausentes do dicionário: "Setor Habitacional Vicente Pires" (5) e "Areal" (3). Essas variantes foram incorporadas ao dicionário, eliminando a necessidade de revisão desses oito registros. A associação de Areal a Águas Claras é uma premissa baseada na amostra, sem confirmação oficial no pipeline.
+
+O cliente CLI0002 apresentou divergência: o cadastro informava "Sul (Águas Claras)", enquanto o ViaCEP retornou "Taguatinga Norte". Conforme a regra definida, prevaleceu a API, com divergência registrada para conferência posterior.
+
+Após corrigir a função `resolver_bairro`, o cliente CLI0047, sem bairro resolvido, passou a ser sinalizado para revisão manual. A nova execução manteve os 47 clientes, 5 vendedores, 4 bairros e 194 registros de auditoria, com 1 cliente em revisão.
+
+Os 121 testes automatizados passaram em 35,58 segundos. O comando `python manage.py check` também não identificou problemas. Na execução mais recente, as consultas de CEP foram atendidas pelo cache local.
 
 ## Próximos passos
-Corrigir os CEPs dos 3 clientes cujo CEP não existe nas APIs (72110-800 e 71900-000), conferir o CLI0002,
-decidir a política de CNPJ inválido (quarentena ou rejeição) e, em produção, adotar carga incremental.
+
+Revisar manualmente o CLI0047, conferir a divergência do CLI0002, corrigir os CEPs inexistentes (72110-800 e 71900-000), definir uma política de validação de CNPJ para produção e avaliar carga incremental para bases maiores.
