@@ -439,7 +439,7 @@ LIMIT 5;
 
 **Evidência da auditoria:**
 
-<img width="1409" height="758" alt="Consulta SQL dos registros de auditoria" src="https://github.com/user-attachments/assets/dd9ec8c5-b2ae-40a7-930d-b53e88975343" />
+<img width="1355" height="756" alt="5 Consultas de auditorias" src="https://github.com/user-attachments/assets/7f72a48f-8d8b-4093-b3b0-0e608e9e8569" />
 
 ### 6. Tratamento de divergências
 
