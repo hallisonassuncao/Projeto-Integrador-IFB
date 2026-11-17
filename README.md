@@ -326,21 +326,21 @@ O painel apresenta os 47 clientes distribuídos em quatro bairros normalizados, 
 
 A interface apresenta os clientes com razão social, bairro, vendedor, CNPJ e telefone padronizados.
 
-![Tela de clientes](docs/imagens/clientes.png)
+<img width="1376" height="728" alt="Listagem de clientes" src="https://github.com/user-attachments/assets/bb1d90c1-8f4d-46c0-8f3d-6cb8ec1592f4" />
 
 ### Vendedores
 
 A tela apresenta os cinco vendedores e a quantidade de clientes vinculados a cada um.
 
-![Tela de vendedores](docs/imagens/vendedores.png)
+<img width="1364" height="723" alt="vendedores" src="https://github.com/user-attachments/assets/5b43eb8b-e848-4d1f-81d7-f869aadc3a4c" />
 
 ### Filtro por vendedor
 
 Ao selecionar Camila Torres, o sistema apresenta os 14 clientes vinculados à vendedora.
 
-![Filtro de clientes por vendedor](docs/imagens/filtro-vendedor.png)
+<img width="1348" height="730" alt="Ao selecionar Camila Torres" src="https://github.com/user-attachments/assets/3fa0be68-da03-48ba-b41b-f67608d63b32" />
 
-  
+
 
 ## 👥 Autoria
 - Autores: Aleandreson, Hallison, Bruno Miranda e Cecília
