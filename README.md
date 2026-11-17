@@ -474,7 +474,7 @@ Todos os **121 testes foram aprovados** na execução realizada.
 ```
 
 Esse procedimento permite executar consultas SQL diretamente pelo Django, sem a necessidade de utilizar o programa `psql` no terminal do Windows.
-
+```
 
 ## 📸 Demonstração do Sistema
 
