@@ -314,15 +314,15 @@ docs/              MER + DER, documentação técnica do ETL, relatório de trad
 - **`No module named ...`:** o ambiente virtual não está ativo ou os pacotes não foram instalados.
 - **`manage.py` não encontrado:** execute os comandos dentro da pasta do projeto.
 
-## 📸 Demonstração do sistema
+## 📸 Demonstração do Sistema
 
-### ==> Painel principal
+### ==> Painel Principal
 
 🔴 O painel apresenta os 47 clientes distribuídos em quatro bairros normalizados, além de um cliente sem bairro.
 
 <img width="1353" height="697" alt="Painel principal" src="https://github.com/user-attachments/assets/736e574f-fe47-4b74-bef1-9ec6c37f78a7" />
 
-### ==> Listagem de clientes
+### ==> Listagem de Clientes
 
 🔴 A interface apresenta os clientes com razão social, bairro, vendedor, CNPJ e telefone padronizados.
 
@@ -334,7 +334,7 @@ docs/              MER + DER, documentação técnica do ETL, relatório de trad
 
 <img width="1364" height="723" alt="vendedores" src="https://github.com/user-attachments/assets/5b43eb8b-e848-4d1f-81d7-f869aadc3a4c" />
 
-### == Filtro por vendedor
+### ==> Filtro por Vendedor
 
 🔴 Ao selecionar Camila Torres, o sistema apresenta os 14 clientes vinculados à vendedora.
 
