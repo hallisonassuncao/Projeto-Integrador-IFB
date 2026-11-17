@@ -21,7 +21,7 @@ Projeto do desafio Primora (Bolsa Futuro Digital), em duas partes:
 | Documentação técnica explicando as regras adotadas e seus limites conhecidos | Regras por campo, critério de divergência, limites e o que foi verificado | [docs/DOCUMENTACAO_TECNICA.md](docs/DOCUMENTACAO_TECNICA.md) |
 | Relatório curto (1-2 páginas) com os trade-offs: o que foi automatizado, o que foi tratado manualmente, e por quê | Cerca de 800 palavras, com os números da execução real | [docs/RELATORIO_TRADEOFFS.md](docs/RELATORIO_TRADEOFFS.md) |
 
-### 🔴 Abordagens sugeridas e soluções adotadas
+### Abordagens sugeridas e soluções adotadas
 
 As abordagens apresentadas no enunciado foram utilizadas como referência para o desenvolvimento do projeto, considerando os requisitos técnicos e as necessidades de tratamento dos dados.
 
@@ -104,12 +104,12 @@ from django.contrib.auth.models import User
 
 u = User.objects.get(username="admin")
 
-u.check\_password("projeto123")
+u.check_password("SUA_SENHA")
 
 O resultado será:
 
-- True → a senha é projeto123;
-- False → a senha é diferente de projeto123.
+- True → a senha informada está correta;
+- False → a senha informada não corresponde à cadastrada.
 
 ---
 
@@ -140,7 +140,6 @@ print(list(User.objects.values('id', 'username', 'is_staff', 'is_superuser')))
 
 Se o retorno vier vazio ([]), não existe nenhum usuário cadastrado no banco.
 ```
-
 O ETL é idempotente: pode ser reexecutado sem duplicar dados e não apaga clientes criados pela API.
 O arquivo `.env` guarda a senha e **não vai para o Git** (está no `.gitignore`).
 
@@ -177,7 +176,6 @@ $env:DB_ENGINE="sqlite"
 python manage.py migrate
 python manage.py rodar_etl --saida saida
 ```
-
 As tabelas do projeto são `clientes_cliente`, `clientes_vendedor` e `clientes_auditoria`, além das tabelas
 do próprio Django (usuários, tokens e sessões). O arquivo `vetor.db` não vai para o Git (está no `.gitignore`).
 Para ver o conteúdo:
@@ -185,7 +183,6 @@ Para ver o conteúdo:
 ```powershell
 python -c "import sqlite3; c=sqlite3.connect('vetor.db'); print(c.execute('SELECT bairro_normalizado, COUNT(*) FROM clientes_cliente GROUP BY 1').fetchall())"
 ```
-
 ## Consultar o Banco no VS Code
 
 Ao abrir a pasta, o VS Code sugere instalar as extensões recomendadas (`.vscode/extensions.json`). O arquivo
@@ -224,7 +221,6 @@ token em `/api/auth/token/` e libera criar, editar e excluir clientes e vendedor
 ```bash
 python manage.py runserver
 ```
-
 | Endereço | O que é |
 |---|---|
 | http://127.0.0.1:8000/ | Interface web (painel, clientes e vendedores) |
@@ -262,9 +258,8 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/api/clientes/ -Headers
      -ContentType "application/json" `
      -Body '{"razao_social":"Loja Nova","vendedor_id":1,"bairro_normalizado":"aguas claras"}'
 ```
-
-```bash
-# curl  ==> No PowerShell
+```powershell
+# Requisição HTTP no PowerShell
 $body = @{
     username = "admin"
     password = "SUA_SENHA"
@@ -276,7 +271,6 @@ Invoke-RestMethod `
     -ContentType "application/json" `
     -Body $body
 ```
-
 Na criação e edição, CNPJ, telefone, CEP e bairro passam pelas mesmas normalizações do ETL
 (CNPJ `XX.XXX.XXX/XXXX-XX`, telefone E.164, CEP `NNNNN-NNN`, bairro canônico). Um vendedor com
 clientes vinculados não pode ser excluído (resposta 409).
@@ -286,7 +280,6 @@ clientes vinculados não pode ser excluído (resposta 409).
 ```bash
 pytest
 ```
-
 121 testes (ETL e API). Não usam rede (as APIs de CEP são simuladas) e rodam em SQLite.
 
 ## Estrutura
@@ -302,7 +295,6 @@ tests/             testes do ETL e da API
 .vscode/           configurações do VS Code (executar, depurar e testar)
 docs/              MER + DER, documentação técnica do ETL, relatório de trade-offs
 ```
-
 ## Problemas comuns
 
 - **Erro ao conectar no PostgreSQL (Windows):** quase sempre é senha ou usuário incorretos no `.env`. O projeto
@@ -323,12 +315,11 @@ Esta seção apresenta as evidências de funcionamento do projeto **Distribuidor
 
 ✅ O pipeline realiza as etapas de **extração, transformação e carga (ETL)**, processando os dados dos clientes e persistindo as informações tratadas no PostgreSQL.
 
-**Comando executado no terminal VSCode:**
+**Comando executado no terminal do VS Code:**
 
-```
+```powershell
 python executar_etl.py
 ```
-
 **Evidência da execução:**
 
 <img width="1349" height="758" alt="Execução do pipeline ETL" src="https://github.com/user-attachments/assets/65248e62-afab-4cdf-8d28-2cace37374b7" />
@@ -341,40 +332,37 @@ O processamento também identificou divergências entre informações fornecidas
 
 **Comando executado:**
 
-```
+```powershell
 python executar_etl.py
 ```
-
 **Evidência do resumo gerado pelo ETL:**
 
 <img width="1351" height="756" alt="Resumo do processamento ETL" src="https://github.com/user-attachments/assets/744ea4d4-59d9-4efa-a537-6910c86e31d6" />
 
-### Observação sobre a execução das consultas SQL
+### Como executar as consultas SQL no VS Code
 
-As consultas SQL apresentadas foram executadas no PostgreSQL por meio do shell do Django, utilizando a conexão configurada no projeto.
+As consultas SQL foram executadas no PostgreSQL pelo shell do Django. No terminal PowerShell, rode `python manage.py shell`; quando aparecer `>>>`, use os comandos Python abaixo, que enviam SQL ao banco por meio de `cursor.execute()`. Não digite `SELECT` diretamente no PowerShell ou no prompt Python.
 
 **Para acessar o shell:**
 
-```
+```powershell
 python manage.py shell
 ```
-
 **Para importar a conexão:**
 
 ```python
 from django.db import connection
-
+```
 ### 3. Normalização dos bairros
 
 ✅ A consulta SQL verifica a distribuição dos clientes por bairro após a normalização e confirma que os dados tratados foram armazenados no PostgreSQL.
 
-**Consulta do SQL no Terminal do VSCode:**
+**Comando Python no shell do Django (`>>>`):**
 
-```
+```python
 from django.db import connection; cursor = connection.cursor(); cursor.execute("SELECT COALESCE(bairro_normalizado, 'Sem bairro') AS bairro, COUNT(*) AS total_clientes FROM clientes_cliente GROUP BY bairro_normalizado ORDER BY total_clientes DESC;"); print(*cursor.fetchall(), sep="\n"); cursor.close()
 
 ```
-
 **Resultado obtido:**
 
 | Bairro | Clientes |
@@ -394,13 +382,12 @@ from django.db import connection; cursor = connection.cursor(); cursor.execute("
 
 ✅ A consulta utiliza `LEFT JOIN` para verificar o relacionamento entre as tabelas de clientes e vendedores, apresentando a quantidade de clientes vinculados a cada vendedor.
 
-**Consulta do SQL no Terminal do VSCode:**
+**Comando Python no shell do Django (`>>>`):**
 
-```
+```python
 from django.db import connection; cursor = connection.cursor(); cursor.execute("SELECT v.nome_vendedor, COUNT(c.id_cliente) AS total_clientes FROM clientes_vendedor v LEFT JOIN clientes_cliente c ON c.vendedor_id = v.id_vendedor GROUP BY v.id_vendedor, v.nome_vendedor ORDER BY total_clientes DESC;"); print(*cursor.fetchall(), sep="\n"); cursor.close()
 
 ```
-
 **Resultado obtido:**
 
 | Vendedor | Clientes |
@@ -422,20 +409,16 @@ from django.db import connection; cursor = connection.cursor(); cursor.execute("
 
 **Consulta para verificar a quantidade de registros:**
 
-```
-
+```python
 with connection.cursor() as cursor: cursor.execute("SELECT COUNT(*) AS total_auditorias FROM clientes_auditoria;"); print("Total de auditorias:", cursor.fetchone()[0])
 
 ```
-
 **Consulta para visualizar os registros de auditoria:**
 
-```
-
+```python
 cursor = connection.cursor(); cursor.execute("SELECT cliente_id, campo, valor_original, valor_tratado, criterio FROM clientes_auditoria ORDER BY cliente_id, campo LIMIT 5;"); print(*cursor.fetchall(), sep="\n"); cursor.close()
 
 ```
-
 **Resultado:** 194 registros de auditoria armazenados no PostgreSQL.
 
 **Evidência da auditoria:**
@@ -448,13 +431,12 @@ cursor = connection.cursor(); cursor.execute("SELECT cliente_id, campo, valor_or
 
 O sistema priorizou o retorno da API ViaCEP e registrou o critério utilizado na tabela de auditoria, garantindo a rastreabilidade da decisão.
 
-**Consulta do SQL no Terminal do VSCode:**
+**Comando Python no shell do Django (`>>>`):**
 
-```
+```python
 from django.db import connection; cursor = connection.cursor(); cursor.execute("SELECT campo, valor_original, valor_tratado, criterio FROM clientes_auditoria WHERE cliente_id = 'CLI0002' AND campo = 'bairro';"); print(*cursor.fetchall(), sep="\n"); cursor.close()
 
 ```
-
 **Resultado obtido:**
 
 | Informação | Valor |
@@ -475,24 +457,25 @@ from django.db import connection; cursor = connection.cursor(); cursor.execute("
 
 **Comando executado:**
 
-```
+```powershell
 python -m pytest -q
 ```
-
 **Resultado obtido:**
 
 ```text
 121 passed in 39.29s
 ```
-
 Todos os **121 testes foram aprovados** na execução realizada.
 
 **Evidência dos testes:**
 
 <img width="1355" height="753" alt="Resultado dos testes automatizados com Pytest" src="https://github.com/user-attachments/assets/6151dbb1-1977-4094-b5a4-1536267af200" />
 
+<<<<<<< HEAD
 
 ```
+=======
+>>>>>>> 78919e5 (Correção e formatacao e comandos do README)
 
 Esse procedimento permite executar consultas SQL diretamente pelo Django, sem a necessidade de utilizar o programa `psql` no terminal do Windows.
 
@@ -526,8 +509,8 @@ Esse procedimento permite executar consultas SQL diretamente pelo Django, sem a 
 
 
 ## 👥 Autoria
+
 - Autores: Aleandreson, Hallison, Bruno Miranda e Cecília
 - Projeto: Desafio Primora
 - Área: Desenvolvimento de Software BackEnd - Python com Django
 - Instituição: Instituto Federal de Brasília (IFB)
-  
