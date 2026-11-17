@@ -325,7 +325,7 @@ Esta seção apresenta as evidências de funcionamento do projeto **Distribuidor
 
 **Comando executado no terminal:**
 
-```powershell
+```
 python executar_etl.py
 ```
 
@@ -341,7 +341,7 @@ O processamento também identificou divergências entre informações fornecidas
 
 **Comando executado:**
 
-```powershell
+```
 python executar_etl.py
 ```
 
@@ -353,7 +353,7 @@ python executar_etl.py
 
 ✅ A consulta SQL verifica a distribuição dos clientes por bairro após a normalização e confirma que os dados tratados foram armazenados no PostgreSQL.
 
-**Consulta SQL:**
+**Consulte no Terminal do VSCode:**
 
 ```
 from django.db import connection; cursor = connection.cursor(); cursor.execute("SELECT COALESCE(bairro_normalizado, 'Sem bairro') AS bairro, COUNT(*) AS total_clientes FROM clientes_cliente GROUP BY bairro_normalizado ORDER BY total_clientes DESC;"); print(*cursor.fetchall(), sep="\n"); cursor.close()
@@ -379,7 +379,7 @@ from django.db import connection; cursor = connection.cursor(); cursor.execute("
 
 ✅ A consulta utiliza `LEFT JOIN` para verificar o relacionamento entre as tabelas de clientes e vendedores, apresentando a quantidade de clientes vinculados a cada vendedor.
 
-**Consulta SQL:**
+**Consulte no Terminal do VSCode:**
 
 ```
 from django.db import connection; cursor = connection.cursor(); cursor.execute("SELECT v.nome_vendedor, COUNT(c.id_cliente) AS total_clientes FROM clientes_vendedor v LEFT JOIN clientes_cliente c ON c.vendedor_id = v.id_vendedor GROUP BY v.id_vendedor, v.nome_vendedor ORDER BY total_clientes DESC;"); print(*cursor.fetchall(), sep="\n"); cursor.close()
@@ -407,7 +407,7 @@ from django.db import connection; cursor = connection.cursor(); cursor.execute("
 
 **Consulta para verificar a quantidade de registros:**
 
-```sql
+```
 
 with connection.cursor() as cursor: cursor.execute("SELECT COUNT(*) AS total_auditorias FROM clientes_auditoria;"); print("Total de auditorias:", cursor.fetchone()[0])
 
@@ -415,7 +415,7 @@ with connection.cursor() as cursor: cursor.execute("SELECT COUNT(*) AS total_aud
 
 **Consulta para visualizar os registros de auditoria:**
 
-```sql
+```
 
 cursor = connection.cursor(); cursor.execute("SELECT cliente_id, campo, valor_original, valor_tratado, criterio FROM clientes_auditoria ORDER BY cliente_id, campo LIMIT 5;"); print(*cursor.fetchall(), sep="\n"); cursor.close()
 
@@ -433,7 +433,7 @@ cursor = connection.cursor(); cursor.execute("SELECT cliente_id, campo, valor_or
 
 O sistema priorizou o retorno da API ViaCEP e registrou o critério utilizado na tabela de auditoria, garantindo a rastreabilidade da decisão.
 
-**Consulta SQL:**
+**Consulte no Terminal do VSCode:**
 
 ```
 from django.db import connection; cursor = connection.cursor(); cursor.execute("SELECT campo, valor_original, valor_tratado, criterio FROM clientes_auditoria WHERE cliente_id = 'CLI0002' AND campo = 'bairro';"); print(*cursor.fetchall(), sep="\n"); cursor.close()
@@ -460,7 +460,7 @@ from django.db import connection; cursor = connection.cursor(); cursor.execute("
 
 **Comando executado:**
 
-```powershell
+```
 python -m pytest -q
 ```
 
@@ -484,7 +484,7 @@ As consultas SQL apresentadas foram executadas no PostgreSQL por meio do shell d
 
 **Para acessar o shell:**
 
-```powershell
+```
 python manage.py shell
 ```
 
