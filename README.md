@@ -21,7 +21,7 @@ Projeto do desafio Primora (Bolsa Futuro Digital), em duas partes:
 | Documentação técnica explicando as regras adotadas e seus limites conhecidos | Regras por campo, critério de divergência, limites e o que foi verificado | [docs/DOCUMENTACAO_TECNICA.md](docs/DOCUMENTACAO_TECNICA.md) |
 | Relatório curto (1-2 páginas) com os trade-offs: o que foi automatizado, o que foi tratado manualmente, e por quê | Cerca de 800 palavras, com os números da execução real | [docs/RELATORIO_TRADEOFFS.md](docs/RELATORIO_TRADEOFFS.md) |
 
-### Abordagens sugeridas e soluções adotadas
+### 🔴 Abordagens sugeridas e soluções adotadas
 
 As abordagens apresentadas no enunciado foram utilizadas como referência para o desenvolvimento do projeto, considerando os requisitos técnicos e as necessidades de tratamento dos dados.
 
