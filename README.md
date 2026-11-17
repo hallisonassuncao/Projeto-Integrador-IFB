@@ -349,11 +349,26 @@ python executar_etl.py
 
 <img width="1351" height="756" alt="Resumo do processamento ETL" src="https://github.com/user-attachments/assets/744ea4d4-59d9-4efa-a537-6910c86e31d6" />
 
+### Observação sobre a execução das consultas SQL
+
+As consultas SQL apresentadas foram executadas no PostgreSQL por meio do shell do Django, utilizando a conexão configurada no projeto.
+
+**Para acessar o shell:**
+
+```
+python manage.py shell
+```
+
+**Para importar a conexão:**
+
+```python
+from django.db import connection
+
 ### 3. Normalização dos bairros
 
 ✅ A consulta SQL verifica a distribuição dos clientes por bairro após a normalização e confirma que os dados tratados foram armazenados no PostgreSQL.
 
-**Consulte no Terminal do VSCode:**
+**Consulta do SQL no Terminal do VSCode:**
 
 ```
 from django.db import connection; cursor = connection.cursor(); cursor.execute("SELECT COALESCE(bairro_normalizado, 'Sem bairro') AS bairro, COUNT(*) AS total_clientes FROM clientes_cliente GROUP BY bairro_normalizado ORDER BY total_clientes DESC;"); print(*cursor.fetchall(), sep="\n"); cursor.close()
@@ -379,7 +394,7 @@ from django.db import connection; cursor = connection.cursor(); cursor.execute("
 
 ✅ A consulta utiliza `LEFT JOIN` para verificar o relacionamento entre as tabelas de clientes e vendedores, apresentando a quantidade de clientes vinculados a cada vendedor.
 
-**Consulte no Terminal do VSCode:**
+**Consulta do SQL no Terminal do VSCode:**
 
 ```
 from django.db import connection; cursor = connection.cursor(); cursor.execute("SELECT v.nome_vendedor, COUNT(c.id_cliente) AS total_clientes FROM clientes_vendedor v LEFT JOIN clientes_cliente c ON c.vendedor_id = v.id_vendedor GROUP BY v.id_vendedor, v.nome_vendedor ORDER BY total_clientes DESC;"); print(*cursor.fetchall(), sep="\n"); cursor.close()
@@ -433,7 +448,7 @@ cursor = connection.cursor(); cursor.execute("SELECT cliente_id, campo, valor_or
 
 O sistema priorizou o retorno da API ViaCEP e registrou o critério utilizado na tabela de auditoria, garantindo a rastreabilidade da decisão.
 
-**Consulte no Terminal do VSCode:**
+**Consulta do SQL no Terminal do VSCode:**
 
 ```
 from django.db import connection; cursor = connection.cursor(); cursor.execute("SELECT campo, valor_original, valor_tratado, criterio FROM clientes_auditoria WHERE cliente_id = 'CLI0002' AND campo = 'bairro';"); print(*cursor.fetchall(), sep="\n"); cursor.close()
@@ -478,31 +493,7 @@ Todos os **121 testes foram aprovados** na execução realizada.
 
 ---
 
-### Observação sobre a execução das consultas SQL
 
-As consultas SQL apresentadas foram executadas no PostgreSQL por meio do shell do Django, utilizando a conexão configurada no projeto.
-
-**Para acessar o shell:**
-
-```
-python manage.py shell
-```
-
-**Para importar a conexão:**
-
-```python
-from django.db import connection
-```
-
-**Exemplo de execução de uma consulta:**
-
-```python
-with connection.cursor() as cursor:
-    cursor.execute("""
-        SELECT COUNT(*)
-        FROM clientes_auditoria;
-    """)
-    print(cursor.fetchone())
 ```
 
 Esse procedimento permite executar consultas SQL diretamente pelo Django, sem a necessidade de utilizar o programa `psql` no terminal do Windows.
