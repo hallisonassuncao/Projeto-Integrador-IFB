@@ -341,7 +341,7 @@ python executar_etl.py
 
 ### Como executar as consultas SQL no VS Code
 
-As consultas SQL foram executadas no PostgreSQL pelo shell do Django. No terminal PowerShell, rode `python manage.py shell`; quando aparecer `>>>`, use os comandos Python abaixo, que enviam SQL ao banco por meio de `cursor.execute()`. Não digite `SELECT` diretamente no PowerShell ou no prompt Python.
+As consultas SQL foram executadas no PostgreSQL pelo shell do Django. No terminal do VSCode, rode `python manage.py shell`; quando aparecer `>>>`, use os comandos Python abaixo, que enviam SQL ao banco por meio de `cursor.execute()`. Não digite `SELECT` diretamente no PowerShell ou no prompt Python.
 
 **Para acessar o shell:**
 
