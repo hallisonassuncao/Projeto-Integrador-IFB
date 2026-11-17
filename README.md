@@ -376,7 +376,7 @@ ORDER BY total_clientes DESC;
 
 **Evidência da consulta:**
 
-<img width="1395" height="754" alt="Consulta SQL de clientes por bairro" src="https://github.com/user-attachments/assets/2e84d777-34cf-4ac9-a5e4-0e020d64674a" />
+<img width="1353" height="752" alt="3 consulta-bairros" src="https://github.com/user-attachments/assets/40880575-aaf2-4a57-ae19-ba50f685169a" />
 
 ### 4. Relacionamento entre clientes e vendedores
 
