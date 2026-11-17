@@ -316,56 +316,216 @@ docs/              MER + DER, documentação técnica do ETL, relatório de trad
 
 ## 🖥️ Evidências de execução no VS Code
 
-### ==> Execução do pipeline ETL
+Esta seção apresenta as evidências de funcionamento do projeto **Distribuidora Vetor**, incluindo a execução do pipeline ETL, a validação dos dados no PostgreSQL, a auditoria das transformações e os testes automatizados.
 
-✅ O pipeline executa as etapas de extração, transformação
-e carga, persistindo os dados tratados no PostgreSQL.
+### 1. Execução do pipeline ETL
 
-<img width="1349" height="758" alt="1 execucao-etl" src="https://github.com/user-attachments/assets/65248e62-afab-4cdf-8d28-2cace37374b7" />
+✅ O pipeline realiza as etapas de **extração, transformação e carga (ETL)**, processando os dados dos clientes e persistindo as informações tratadas no PostgreSQL.
 
-### ==> Resumo do Processamento
+**Comando executado no terminal:**
 
-✅ O ETL processou 47 clientes, normalizou quatro bairros,
-gerou 194 registros de auditoria e identificou um
-registro para revisão manual.
+```powershell
+python executar_etl.py
+```
 
-<img width="1351" height="756" alt="2 resumo do ETL" src="https://github.com/user-attachments/assets/744ea4d4-59d9-4efa-a537-6910c86e31d6" />
+**Evidência da execução:**
 
-### ==> Normalização dos Bairros
+<img width="1349" height="758" alt="Execução do pipeline ETL" src="https://github.com/user-attachments/assets/65248e62-afab-4cdf-8d28-2cace37374b7" />
 
-✅ Consulta SQL que comprova a distribuição dos clientes
-pelos bairros normalizados.
+### 2. Resumo do processamento
 
-<img width="1395" height="754" alt="3 consulta-bairros" src="https://github.com/user-attachments/assets/2e84d777-34cf-4ac9-a5e4-0e020d64674a" />
+✅ O ETL processou **47 clientes**, normalizou os registros em quatro bairros canônicos, gerou **194 registros de auditoria** e identificou um registro para revisão manual.
 
-### ==> Relacionamento entre Clientes e Vendedores
+O processamento também identificou divergências entre informações fornecidas no CSV e dados retornados pela API de CEP.
 
-✅ Consulta SQL que apresenta os cinco vendedores e suas
-respectivas quantidades de clientes.
+**Comando executado:**
 
-<img width="1359" height="756" alt="4 consulta-vendedores" src="https://github.com/user-attachments/assets/250811cc-597f-427d-bd0c-b200d3a4fb22" />
+```powershell
+python executar_etl.py
+```
 
-### ==> Auditoria das Transformações
+**Evidência do resumo gerado pelo ETL:**
 
-✅ O banco registra os valores originais, os valores
-tratados e os critérios aplicados pelo ETL.
+<img width="1351" height="756" alt="Resumo do processamento ETL" src="https://github.com/user-attachments/assets/744ea4d4-59d9-4efa-a537-6910c86e31d6" />
 
-<img width="1409" height="758" alt="5 Consultas de auditorias" src="https://github.com/user-attachments/assets/dd9ec8c5-b2ae-40a7-930d-b53e88975343" />
+### 3. Normalização dos bairros
 
-### ==> Tratamento de Divergências
+✅ A consulta SQL verifica a distribuição dos clientes por bairro após a normalização e confirma que os dados tratados foram armazenados no PostgreSQL.
 
-✅ O cliente CLI0002 apresentou divergência entre o bairro
-informado e o retornado pelo ViaCEP. O sistema priorizou
-o retorno da API e registrou a decisão na auditoria.
+**Consulta SQL:**
 
-<img width="1344" height="756" alt="6 consulta-divergencias" src="https://github.com/user-attachments/assets/ea9d20f8-bafb-4ffb-b558-e88fd6fcfd16" />
+```sql
+SELECT
+    COALESCE(bairro_normalizado, 'Sem bairro') AS bairro,
+    COUNT(*) AS total_clientes
+FROM clientes_cliente
+GROUP BY bairro_normalizado
+ORDER BY total_clientes DESC;
+```
 
-### ==> Testes Automatizados
+**Resultado obtido:**
 
-✅ Foram executados 121 testes automatizados com Pytest,
-todos aprovados.
+| Bairro | Clientes |
+|---|---:|
+| Águas Claras | 21 |
+| Taguatinga | 11 |
+| Vicente Pires | 8 |
+| Guará | 6 |
+| Sem bairro | 1 |
+| **Total** | **47** |
 
-<img width="1355" height="753" alt="7 testes-pytest" src="https://github.com/user-attachments/assets/6151dbb1-1977-4094-b5a4-1536267af200" />
+**Evidência da consulta:**
+
+<img width="1395" height="754" alt="Consulta SQL de clientes por bairro" src="https://github.com/user-attachments/assets/2e84d777-34cf-4ac9-a5e4-0e020d64674a" />
+
+### 4. Relacionamento entre clientes e vendedores
+
+✅ A consulta utiliza `LEFT JOIN` para verificar o relacionamento entre as tabelas de clientes e vendedores, apresentando a quantidade de clientes vinculados a cada vendedor.
+
+**Consulta SQL:**
+
+```sql
+SELECT
+    v.nome_vendedor,
+    COUNT(c.id_cliente) AS total_clientes
+FROM clientes_vendedor v
+LEFT JOIN clientes_cliente c
+    ON c.vendedor_id = v.id_vendedor
+GROUP BY v.id_vendedor, v.nome_vendedor
+ORDER BY total_clientes DESC;
+```
+
+**Resultado obtido:**
+
+| Vendedor | Clientes |
+|---|---:|
+| Camila Torres | 14 |
+| Diego Martins | 11 |
+| Bruno Almeida | 10 |
+| Juliana Reis | 9 |
+| Rafael Souza | 3 |
+| **Total** | **47** |
+
+**Evidência da consulta:**
+
+<img width="1359" height="756" alt="Consulta SQL de clientes por vendedor" src="https://github.com/user-attachments/assets/250811cc-597f-427d-bd0c-b200d3a4fb22" />
+
+### 5. Auditoria das transformações
+
+✅ O sistema registra os valores originais, os valores tratados e os critérios aplicados durante a execução do ETL, permitindo rastrear as alterações realizadas nos dados.
+
+**Consulta para verificar a quantidade de registros:**
+
+```sql
+SELECT COUNT(*) AS total_auditorias
+FROM clientes_auditoria;
+```
+
+**Consulta para visualizar os registros de auditoria:**
+
+```sql
+SELECT
+    cliente_id,
+    campo,
+    valor_original,
+    valor_tratado,
+    criterio
+FROM clientes_auditoria
+ORDER BY cliente_id, campo
+LIMIT 5;
+```
+
+**Resultado:** 194 registros de auditoria armazenados no PostgreSQL.
+
+**Evidência da auditoria:**
+
+<img width="1409" height="758" alt="Consulta SQL dos registros de auditoria" src="https://github.com/user-attachments/assets/dd9ec8c5-b2ae-40a7-930d-b53e88975343" />
+
+### 6. Tratamento de divergências
+
+✅ O cliente `CLI0002` apresentou divergência entre o bairro informado no arquivo CSV e o bairro retornado pela consulta de CEP.
+
+O sistema priorizou o retorno da API ViaCEP e registrou o critério utilizado na tabela de auditoria, garantindo a rastreabilidade da decisão.
+
+**Consulta SQL:**
+
+```sql
+SELECT
+    campo,
+    valor_original,
+    valor_tratado,
+    criterio
+FROM clientes_auditoria
+WHERE cliente_id = 'CLI0002'
+  AND campo = 'bairro';
+```
+
+**Resultado obtido:**
+
+| Informação | Valor |
+|---|---|
+| Cliente | CLI0002 |
+| Bairro original | Sul (Aguas Claras) |
+| Bairro tratado | Taguatinga / Norte |
+| Critério | `divergencia_api_prevalece` |
+| Fonte | ViaCEP |
+
+**Evidência do tratamento da divergência:**
+
+<img width="1344" height="756" alt="Consulta SQL da divergência de bairro do cliente CLI0002" src="https://github.com/user-attachments/assets/ea9d20f8-bafb-4ffb-b558-e88fd6fcfd16" />
+
+### 7. Testes automatizados
+
+✅ Os testes automatizados foram executados com **Pytest**, verificando as regras de tratamento dos dados e o funcionamento dos recursos implementados.
+
+**Comando executado:**
+
+```powershell
+python -m pytest -q
+```
+
+**Resultado obtido:**
+
+```text
+121 passed in 39.29s
+```
+
+Todos os **121 testes foram aprovados** na execução realizada.
+
+**Evidência dos testes:**
+
+<img width="1355" height="753" alt="Resultado dos testes automatizados com Pytest" src="https://github.com/user-attachments/assets/6151dbb1-1977-4094-b5a4-1536267af200" />
+
+---
+
+### Observação sobre a execução das consultas SQL
+
+As consultas SQL apresentadas foram executadas no PostgreSQL por meio do shell do Django, utilizando a conexão configurada no projeto.
+
+**Para acessar o shell:**
+
+```powershell
+python manage.py shell
+```
+
+**Para importar a conexão:**
+
+```python
+from django.db import connection
+```
+
+**Exemplo de execução de uma consulta:**
+
+```python
+with connection.cursor() as cursor:
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM clientes_auditoria;
+    """)
+    print(cursor.fetchone())
+```
+
+Esse procedimento permite executar consultas SQL diretamente pelo Django, sem a necessidade de utilizar o programa `psql` no terminal do Windows.
 
 
 ## 📸 Demonstração do Sistema
