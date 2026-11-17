@@ -426,15 +426,9 @@ with connection.cursor() as cursor: cursor.execute("SELECT COUNT(*) AS total_aud
 **Consulta para visualizar os registros de auditoria:**
 
 ```sql
-SELECT
-    cliente_id,
-    campo,
-    valor_original,
-    valor_tratado,
-    criterio
-FROM clientes_auditoria
-ORDER BY cliente_id, campo
-LIMIT 5;
+
+cursor = connection.cursor(); cursor.execute("SELECT cliente_id, campo, valor_original, valor_tratado, criterio FROM clientes_auditoria ORDER BY cliente_id, campo LIMIT 5;"); print(*cursor.fetchall(), sep="\n"); cursor.close()
+
 ```
 
 **Resultado:** 194 registros de auditoria armazenados no PostgreSQL.
