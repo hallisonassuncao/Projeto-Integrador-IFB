@@ -445,15 +445,9 @@ O sistema priorizou o retorno da API ViaCEP e registrou o critério utilizado na
 
 **Consulta SQL:**
 
-```sql
-SELECT
-    campo,
-    valor_original,
-    valor_tratado,
-    criterio
-FROM clientes_auditoria
-WHERE cliente_id = 'CLI0002'
-  AND campo = 'bairro';
+```
+from django.db import connection; cursor = connection.cursor(); cursor.execute("SELECT campo, valor_original, valor_tratado, criterio FROM clientes_auditoria WHERE cliente_id = 'CLI0002' AND campo = 'bairro';"); print(*cursor.fetchall(), sep="\n"); cursor.close()
+
 ```
 
 **Resultado obtido:**
