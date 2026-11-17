@@ -385,15 +385,9 @@ ORDER BY total_clientes DESC;
 
 **Consulta SQL:**
 
-```sql
-SELECT
-    v.nome_vendedor,
-    COUNT(c.id_cliente) AS total_clientes
-FROM clientes_vendedor v
-LEFT JOIN clientes_cliente c
-    ON c.vendedor_id = v.id_vendedor
-GROUP BY v.id_vendedor, v.nome_vendedor
-ORDER BY total_clientes DESC;
+```
+from django.db import connection; cursor = connection.cursor(); cursor.execute("SELECT v.nome_vendedor, COUNT(c.id_cliente) AS total_clientes FROM clientes_vendedor v LEFT JOIN clientes_cliente c ON c.vendedor_id = v.id_vendedor GROUP BY v.id_vendedor, v.nome_vendedor ORDER BY total_clientes DESC;"); print(*cursor.fetchall(), sep="\n"); cursor.close()
+
 ```
 
 **Resultado obtido:**
