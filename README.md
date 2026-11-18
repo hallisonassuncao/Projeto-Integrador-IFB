@@ -63,9 +63,21 @@ source .venv/bin/activate           # Linux/macOS
 # 2. Instalar os pacotes
 pip install -r requirements.txt
 
-# 3. Configurar o ambiente: copie .env.example para .env e informe a senha do PostgreSQL
-#    (se DB_NAME não estiver no .env, o projeto usa SQLite no arquivo vetor.db)
-copy .env.example .env              # Windows   |   cp .env.example .env   # Linux/macOS
+# 3. Configurar o ambiente: 
+
+Copie o arquivo .env.example para .env:
+
+Importante: substitua sua_senha pela senha configurada para o usuário postgres no seu banco de dados PostgreSQL.
+
+SECRET_KEY=troque-esta-chave
+DEBUG=1
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+DB_NAME=vetor
+DB_USER=postgres
+DB_PASSWORD=sua_senha  ==> # Substitua pela senha do PostgreSQL
+DB_HOST=localhost
+DB_PORT=5432
 
 # 4. Criar as tabelas
 python manage.py migrate
