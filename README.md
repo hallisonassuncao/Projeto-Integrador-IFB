@@ -65,7 +65,9 @@ pip install -r requirements.txt
 
 # 3. Configurar o ambiente: 
 
-Copie o arquivo .env.example para .env:
+Copie o arquivo, execute no terminal:
+
+copy .env.example .env   
 
 Importante: substitua sua_senha pela senha configurada para o usuário postgres no seu banco de dados PostgreSQL.
 
