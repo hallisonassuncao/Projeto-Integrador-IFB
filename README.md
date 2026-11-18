@@ -71,6 +71,7 @@ copy .env.example .env
 
 Importante: substitua sua_senha pela senha configurada para o usuário postgres no seu banco de dados PostgreSQL.
 
+
 SECRET_KEY=troque-esta-chave
 DEBUG=1
 ALLOWED_HOSTS=localhost,127.0.0.1
@@ -80,6 +81,8 @@ DB_USER=postgres
 DB_PASSWORD=sua_senha  ==> # Substitua pela senha do PostgreSQL
 DB_HOST=localhost
 DB_PORT=5432
+
+Após realizar as alterações, salve o arquivo pressionando Ctrl + S.
 
 # 4. Criar as tabelas
 python manage.py migrate
