@@ -65,7 +65,7 @@ pip install -r requirements.txt
 
 # 3. Configurar o ambiente: 
 
-Copie o arquivo, execute no terminal:
+Execute o Comando abaixo no terminal:
 
 copy .env.example .env   
 
