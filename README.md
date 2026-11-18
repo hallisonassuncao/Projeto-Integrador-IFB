@@ -70,7 +70,7 @@ Execute o Comando abaixo no terminal:
 copy .env.example .env   
 
 Importante: Abra o arquivo .env e substitua sua_senha pela senha do usuário postgres do PostgreSQL.
-
+exemplo abaixo:
 
 SECRET_KEY=troque-esta-chave
 DEBUG=1
