@@ -69,7 +69,7 @@ Execute o Comando abaixo no terminal:
 
 copy .env.example .env   
 
-Importante: substitua sua_senha pela senha configurada para o usuário postgres no seu banco de dados PostgreSQL.
+Importante: Abra o arquivo .env e substitua sua_senha pela senha do usuário postgres do PostgreSQL.
 
 
 SECRET_KEY=troque-esta-chave
